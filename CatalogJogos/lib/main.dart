@@ -1,7 +1,11 @@
+import 'package:catalog_jogos/features/games/presentation/screens/games_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -20,11 +24,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Scaffold(
-        body: Center(
-          child: Text('Catalog Jogos Environment Ready'),
-        ),
-      ),
+      home: const GamesScreen(),
     );
   }
 }

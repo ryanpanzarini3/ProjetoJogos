@@ -15,6 +15,12 @@ class GamesScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Catalog Jogos'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.push('/settings'),
+          ),
+        ],
       ),
       body: gamesAsync.when(
         data: (games) => ListView.builder(

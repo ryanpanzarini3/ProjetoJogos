@@ -1,6 +1,8 @@
 import 'package:catalog_jogos/features/games/presentation/providers/games_provider.dart';
+import 'package:catalog_jogos/features/games/presentation/widgets/game_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class GamesScreen extends ConsumerWidget {
   const GamesScreen({super.key});
@@ -12,49 +14,49 @@ class GamesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Catalog Jogos'),
+        centerTitle: true,
       ),
       body: gamesAsync.when(
         data: (games) => ListView.builder(
+          padding: const EdgeInsets.only(top: 8, bottom: 16),
           itemCount: games.length,
           itemBuilder: (context, index) {
             final game = games[index];
-            return ListTile(
-              leading: game.backgroundImage != null
-                  ? Image.network(
-                      game.backgroundImage!,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.gamepad),
-                    )
-                  : const Icon(Icons.gamepad),
-              title: Text(game.name),
-              subtitle: Text(
-                  'Rating: ${game.rating ?? 'N/A'} | Released: ${game.released ?? 'N/A'}'),
+            return GameCard(
+              game: game,
+              onTap: () {
+                context.push('/game/${game.id}');
+              },
             );
           },
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error, color: Colors.red, size: 48),
-              const SizedBox(height: 16),
-              const Text('Erro ao carregar jogos'),
-              const SizedBox(height: 8),
-              Text(
-                error.toString(),
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref.refresh(gamesProvider(null)),
-                child: const Text('Tentar Novamente'),
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.wifi_off, color: Colors.red, size: 64),
+                const SizedBox(height: 16),
+                const Text(
+                  'Erro ao carregar jogos',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  error.toString(),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () => ref.refresh(gamesProvider(null)),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Tentar Novamente'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

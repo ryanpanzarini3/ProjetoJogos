@@ -5,10 +5,10 @@ import 'package:catalog_jogos/features/games/domain/entities/game_entity.dart';
 import 'package:catalog_jogos/features/games/domain/repositories/game_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:catalog_jogos/features/games/data/sources/game_mock_datasource.dart'; // Importa o Mock
+
 final gameRemoteDataSourceProvider = Provider<GameRemoteDataSource>(
-  (ref) => GameRemoteDataSourceImpl(
-    DioClient.instance,
-  ),
+  (ref) => GameMockDataSource(), // Troca para o Mock
 );
 
 final gameRepositoryProvider = Provider<GameRepository>(
@@ -22,5 +22,12 @@ final gamesProvider = FutureProvider.family<List<GameEntity>, String?>(
     final repository = ref.watch(gameRepositoryProvider);
 
     return repository.getGames(search: search);
+  },
+);
+
+final gameDetailProvider = FutureProvider.family<GameEntity, int>(
+  (ref, id) async {
+    final repository = ref.watch(gameRepositoryProvider);
+    return repository.getGameDetails(id);
   },
 );

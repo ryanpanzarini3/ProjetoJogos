@@ -1,6 +1,7 @@
 import 'package:catalog_jogos/features/games/presentation/screens/game_detail_screen.dart';
 import 'package:catalog_jogos/features/games/presentation/screens/games_screen.dart';
 import 'package:catalog_jogos/features/settings/presentation/screens/settings_screen.dart';
+import 'package:catalog_jogos/features/favorites/presentation/screens/favorites_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final appRouter = GoRouter(
@@ -9,6 +10,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/',
       builder: (context, state) => const GamesScreen(),
+    ),
+    GoRoute(
+      path: '/favorites',
+      builder: (context, state) => const FavoritesScreen(),
     ),
     GoRoute(
       path: '/game/:id',

@@ -1,3 +1,5 @@
+import 'package:catalog_jogos/features/favorites/presentation/providers/favorites_provider.dart';
+import 'package:catalog_jogos/features/games/data/models/game_model.dart';
 import 'package:catalog_jogos/features/games/presentation/providers/games_provider.dart';
 import 'package:catalog_jogos/features/games/presentation/widgets/game_card.dart';
 import 'package:flutter/material.dart';
@@ -20,18 +22,40 @@ class GamesScreen extends ConsumerWidget {
             icon: const Icon(Icons.settings),
             onPressed: () => context.push('/settings'),
           ),
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            onPressed: () => context.push('/favorites'),
+          ),
         ],
       ),
       body: gamesAsync.when(
-        data: (games) => ListView.builder(
-          padding: const EdgeInsets.only(top: 8, bottom: 16),
-          itemCount: games.length,
-          itemBuilder: (context, index) {
-            final game = games[index];
-            return GameCard(
-              game: game,
-              onTap: () {
-                context.push('/game/${game.id}');
+        data: (games) => Consumer(
+          builder: (context, ref, _) {
+            final favorites = ref.watch(favoritesProvider);
+            return ListView.builder(
+              padding: const EdgeInsets.only(top: 8, bottom: 16),
+              itemCount: games.length,
+              itemBuilder: (context, index) {
+                final game = games[index];
+                final isFav = favorites.any((fav) => fav.id == game.id);
+                return GameCard(
+                  game: game,
+                  isFavorite: isFav,
+                  onFavoriteTap: () async {
+                    final gameModel = GameModel(
+                      id: game.id,
+                      name: game.name,
+                      backgroundImage: game.backgroundImage,
+                      rating: game.rating,
+                      released: game.released,
+                      genres: null,
+                    );
+                    await ref.read(favoritesProvider.notifier).toggle(gameModel);
+                  },
+                  onTap: () {
+                    context.push('/game/${game.id}');
+                  },
+                );
               },
             );
           },

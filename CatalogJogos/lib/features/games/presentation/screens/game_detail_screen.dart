@@ -1,6 +1,8 @@
 import 'package:catalog_jogos/features/games/presentation/providers/games_provider.dart';
+import 'package:catalog_jogos/features/favorites/presentation/providers/favorites_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:catalog_jogos/features/games/data/models/game_model.dart';
 
 class GameDetailScreen extends ConsumerWidget {
   final int gameId;
@@ -11,9 +13,9 @@ class GameDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final gameAsync = ref.watch(gameDetailProvider(gameId));
 
-    return Scaffold(
-      body: gameAsync.when(
-        data: (game) => CustomScrollView(
+    return gameAsync.when(
+      data: (game) => Scaffold(
+        body: CustomScrollView(
           slivers: [
             SliverAppBar(
               expandedHeight: 300,
@@ -110,15 +112,34 @@ class GameDetailScreen extends ConsumerWidget {
             ),
           ],
         ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Erro: $err')),
+        floatingActionButton: Consumer(builder: (context, ref, _) {
+          final favorites = ref.watch(favoritesProvider);
+          final isFav = favorites.any((g) => g.id == game.id);
+          final gameModel = GameModel(
+            id: game.id,
+            name: game.name,
+            backgroundImage: game.backgroundImage,
+            rating: game.rating,
+            released: game.released,
+            genres: null,
+          );
+          return FloatingActionButton.extended(
+            onPressed: () async {
+              await ref.read(favoritesProvider.notifier).toggle(gameModel);
+            },
+            backgroundColor: isFav ? Colors.red : const Color(0xFF03DAC6),
+            label: Text(
+              isFav ? 'REMOVER DOS FAVORITOS' : 'ADICIONAR AOS FAVORITOS',
+              style: TextStyle(
+                  color: isFav ? Colors.white : Colors.black, fontWeight: FontWeight.bold),
+            ),
+            icon: Icon(isFav ? Icons.favorite : Icons.favorite_border,
+                color: isFav ? Colors.white : Colors.black),
+          );
+        }),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: const Color(0xFF03DAC6),
-        label: const Text('ADICIONAR AOS FAVORITOS', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        icon: const Icon(Icons.favorite_border, color: Colors.black),
-      ),
+      loading: () => Scaffold(body: const Center(child: CircularProgressIndicator())),
+      error: (err, stack) => Scaffold(body: Center(child: Text('Erro: $err'))),
     );
   }
 

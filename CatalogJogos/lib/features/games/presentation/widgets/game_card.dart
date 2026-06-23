@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 class GameCard extends StatelessWidget {
   final GameEntity game;
   final VoidCallback onTap;
+  final bool isFavorite;
+  final VoidCallback? onFavoriteTap;
 
   const GameCard({
     super.key,
     required this.game,
     required this.onTap,
+    this.isFavorite = false,
+    this.onFavoriteTap,
   });
 
   @override
@@ -64,6 +68,35 @@ class GameCard extends StatelessWidget {
                   ),
                 ),
               ),
+              if (onFavoriteTap != null)
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Material(
+                    color: Colors.black.withOpacity(0.35),
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      onTap: onFavoriteTap,
+                      customBorder: const CircleBorder(),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          transitionBuilder: (child, animation) => ScaleTransition(
+                            scale: animation,
+                            child: child,
+                          ),
+                          child: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            key: ValueKey<bool>(isFavorite),
+                            color: isFavorite ? Colors.redAccent : Colors.white,
+                            size: 22,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               // Informações sobre a imagem
               Positioned(
                 bottom: 16,

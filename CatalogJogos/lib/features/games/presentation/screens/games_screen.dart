@@ -6,18 +6,76 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class GamesScreen extends ConsumerWidget {
+class GamesScreen extends ConsumerStatefulWidget {
   const GamesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final gamesAsync = ref.watch(gamesProvider(null));
+  ConsumerState<GamesScreen> createState() => _GamesScreenState();
+}
+
+class _GamesScreenState extends ConsumerState<GamesScreen> {
+  String? _searchQuery;
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final gamesAsync = ref.watch(gamesProvider(_searchQuery));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Catalog Jogos'),
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  hintText: 'Pesquisar jogos',
+                  hintStyle: TextStyle(color: Colors.white70),
+                  border: InputBorder.none,
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value.isEmpty ? null : value;
+                  });
+                  ref.refresh(gamesProvider(_searchQuery));
+                },
+              )
+            : const Text('Catalog Jogos'),
         centerTitle: true,
+        leading: _isSearching
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    _isSearching = false;
+                    _searchQuery = null;
+                    _searchController.clear();
+                  });
+                  ref.refresh(gamesProvider(null));
+                },
+              )
+            : null,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              setState(() {
+                _isSearching = !_isSearching;
+                if (!_isSearching) {
+                  _searchQuery = null;
+                  _searchController.clear();
+                  ref.refresh(gamesProvider(null));
+                }
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () => context.push('/settings'),

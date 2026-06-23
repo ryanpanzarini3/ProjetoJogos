@@ -5,10 +5,8 @@ import 'package:catalog_jogos/features/games/domain/entities/game_entity.dart';
 import 'package:catalog_jogos/features/games/domain/repositories/game_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:catalog_jogos/features/games/data/sources/game_mock_datasource.dart'; // Importa o Mock
-
 final gameRemoteDataSourceProvider = Provider<GameRemoteDataSource>(
-  (ref) => GameMockDataSource(), // Troca para o Mock
+  (ref) => GameRemoteDataSourceImpl(DioClient.instance),
 );
 
 final gameRepositoryProvider = Provider<GameRepository>(
